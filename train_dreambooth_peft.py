@@ -149,14 +149,14 @@ def save_combined_ckeckpoint(
             raise ValueError(
                 "`model_name_to_model` should be a dictionary with `PeftModel` instances"
             )
-        state_dict = (
+        model_state_dict = (
             model_name_to_model_state_dict[model]
             if model_name_to_model_state_dict
             else None
         )
         model_state_dict = get_peft_model_state_dict(
             model,
-            state_dict=state_dict,
+            state_dict=model_state_dict,
             adapter_name=adapter_name,
             save_embedding_layers=add_new_tokens,
         )
@@ -1879,12 +1879,17 @@ def main(args):
                     loss = loss + args.prior_loss_weight * prior_loss
 
                 accelerator.backward(loss)
-                # if accelerator.sync_gradients:
-                #     params_to_clip = itertools.chain(
-                #         param_group["params"]
-                #         for param_group in param_groups_to_optimize
-                #     )
-                #     accelerator.clip_grad_norm_(params_to_clip, args.max_grad_norm)
+                if accelerator.sync_gradients:
+                    params_to_clip = (
+                        itertools.chain(
+                            unet.parameters(),
+                            text_encoder_one.parameters(),
+                            text_encoder_two.parameters(),
+                        )
+                        if args.train_text_encoder or args.add_new_tokens
+                        else unet.parameters()
+                    )
+                    accelerator.clip_grad_norm_(params_to_clip, args.max_grad_norm)
                 optimizer.step()
                 lr_scheduler.step()
                 optimizer.zero_grad()
