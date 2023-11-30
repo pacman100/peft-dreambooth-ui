@@ -841,8 +841,8 @@ def parse_args(input_args=None):
     )
     parser.add_argument(
         "--peft_dropout",
-        type=int,
-        default=4,
+        type=float,
+        default=0.1,
         help=("The dropout for PEFT adapter."),
     )
     parser.add_argument(
