@@ -74,7 +74,7 @@ from peft import (
 )
 from peft.mapping import PEFT_TYPE_TO_CONFIG_MAPPING
 
-UNET_TARGET_REPLACE_MODULE = ["Transformer2DModel", "Attention"]
+UNET_TARGET_REPLACE_MODULE = ["Attention"]  # ["Transformer2DModel", "Attention"]
 UNET_TARGET_REPLACE_MODULE_CONV2D_3X3 = ["ResnetBlock2D", "Downsample2D", "Upsample2D"]
 TEXT_ENCODER_TARGET_REPLACE_MODULE = ["CLIPAttention", "CLIPMLP"]
 TEXT_ENCODER_EMBEDDING_LAYER = ["token_embedding"]
