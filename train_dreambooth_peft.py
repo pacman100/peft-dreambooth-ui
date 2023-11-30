@@ -1961,7 +1961,7 @@ def main(args):
                     f" {args.validation_prompt}."
                 )
                 # create pipeline
-                if not args.train_text_encoder:
+                if not (args.train_text_encoder or args.add_new_tokens):
                     text_encoder_one = text_encoder_cls_one.from_pretrained(
                         args.pretrained_model_name_or_path,
                         subfolder="text_encoder",
