@@ -1415,7 +1415,7 @@ def main(args):
     for model in [unet, text_encoder_one, text_encoder_two]:
         for param in model.parameters():
             if param.requires_grad:
-                param.to(torch.float32)
+                param.data = param.to(torch.float32)
 
     # Optimization parameters
     param_groups_to_optimize = get_param_groups(
