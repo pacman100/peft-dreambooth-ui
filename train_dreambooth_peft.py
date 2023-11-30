@@ -1882,9 +1882,10 @@ def main(args):
                 if accelerator.sync_gradients:
                     params_to_clip = (
                         itertools.chain(
-                            unet.parameters(),
-                            text_encoder_one.parameters(),
-                            text_encoder_two.parameters(),
+                            *[
+                                param_group["params"]
+                                for param_group in param_groups_to_optimize
+                            ]
                         )
                         if args.train_text_encoder or args.add_new_tokens
                         else unet.parameters()
