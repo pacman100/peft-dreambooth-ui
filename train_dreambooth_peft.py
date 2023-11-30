@@ -141,7 +141,7 @@ def save_combined_ckeckpoint(
     add_new_tokens=False,
 ):
     # the models in the `model_name_to_model` should be unwrapped
-    metadata = {"library": "peft", "has_config": True}
+    metadata = {"library": "peft", "has_config": "true"}
     state_dict = {}
 
     for model_name, model in model_name_to_model.items():
