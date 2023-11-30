@@ -278,7 +278,6 @@ tags:
 - stable-diffusion-xl
 - stable-diffusion-xl-diffusers
 - text-to-image
----
 library_name: peft
 base_model: {base_model}
 instance_prompt: {instance_prompt}
@@ -295,13 +294,16 @@ license: openrail++
 
 These are {repo_id} LoRA adaption weights for {base_model}.
 The weights were trained  using [DreamBooth](https://dreambooth.github.io/).
+
 LoRA for the text encoder was enabled: {train_text_encoder}.
+
 LoRA for text encoder was enabled to add new tokens: {add_new_tokens}.
+
 Special VAE used for training: {vae_path}.
 
 ## Trigger words
 
-You should use {instance_prompt} to trigger the image generation.
+You should use `{instance_prompt}` to trigger the image generation.
 
 ## Download model
 
