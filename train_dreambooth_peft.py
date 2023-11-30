@@ -2006,7 +2006,13 @@ def main(args):
                     if args.seed
                     else None
                 )
-                pipeline_args = {"prompt": args.validation_prompt}
+                if args.add_new_tokens:
+                    # replace instances of --token_abstraction in caption with the new tokens: "<si><si+1>" etc.
+                    for token_abs, token_replacement in token_abstraction_dict.items():
+                        validation_prompt = args.validation_prompt.replace(
+                            token_abs, "".join(token_replacement)
+                        )
+                pipeline_args = {"prompt": validation_prompt}
 
                 with torch.cuda.amp.autocast():
                     images = [
