@@ -110,8 +110,8 @@ def add_peft_adapters_to_unet(args, unet):
         lora_dropout=args.peft_dropout,
     )
     unet = get_peft_model(unet, config)
-    unet.print_trainable_parameters()
     print(unet)
+    unet.print_trainable_parameters()
     return unet
 
 
@@ -124,14 +124,14 @@ def add_peft_adapters_to_text_encoder(args, text_encoder):
     if args.add_new_tokens:
         text_encoder_target_modules.extend(TEXT_ENCODER_EMBEDDING_LAYER)
     config = LoraConfig(
-        r=args.network_dim,
-        lora_alpha=args.network_alpha,
+        r=args.peft_rank,
+        lora_alpha=args.peft_alpha,
         target_modules=text_encoder_target_modules,
-        lora_dropout=args.network_dropout,
+        lora_dropout=args.peft_dropout,
     )
     text_encoder = get_peft_model(text_encoder, config)
-    text_encoder.print_trainable_parameters()
     print(text_encoder)
+    text_encoder.print_trainable_parameters()
     return text_encoder
 
 
