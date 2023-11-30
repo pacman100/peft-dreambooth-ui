@@ -1943,7 +1943,7 @@ def main(args):
         if accelerator.is_main_process:
             if (
                 args.validation_prompt is not None
-                and epoch % args.validation_epochs == 0
+                and (epoch + 1) % args.validation_epochs == 0
             ):
                 logger.info(
                     f"Running validation... \n Generating {args.num_validation_images} images with prompt:"
