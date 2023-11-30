@@ -1411,11 +1411,16 @@ def main(args):
     # If neither --train_text_encoder nor --add_new_tokens, text_encoders remain frozen during training
     freeze_text_encoder = not (args.train_text_encoder or args.add_new_tokens)
 
+    # make sure trainable params are in full precision
+    for model in [unet, text_encoder_one, text_encoder_two]:
+        for param in model.parameters():
+            if param.requires_grad:
+                param.to(torch.float32)
+
     # Optimization parameters
     param_groups_to_optimize = get_param_groups(
         args, unet, text_encoder_one, text_encoder_two, freeze_text_encoder
     )
-    print(param_groups_to_optimize)
 
     # Optimizer creation
     if not (args.optimizer.lower() == "prodigy" or args.optimizer.lower() == "adamw"):
