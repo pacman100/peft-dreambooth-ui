@@ -1415,6 +1415,7 @@ def main(args):
     param_groups_to_optimize = get_param_groups(
         args, unet, text_encoder_one, text_encoder_two, freeze_text_encoder
     )
+    print(param_groups_to_optimize)
 
     # Optimizer creation
     if not (args.optimizer.lower() == "prodigy" or args.optimizer.lower() == "adamw"):
