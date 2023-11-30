@@ -278,9 +278,6 @@ tags:
 - stable-diffusion-xl
 - stable-diffusion-xl-diffusers
 - text-to-image
-- diffusers
-widget:
-{img_str}
 ---
 library_name: peft
 base_model: {base_model}
