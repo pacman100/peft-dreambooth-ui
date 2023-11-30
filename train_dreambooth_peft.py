@@ -1880,12 +1880,12 @@ def main(args):
                     loss = loss + args.prior_loss_weight * prior_loss
 
                 accelerator.backward(loss)
-                if accelerator.sync_gradients:
-                    params_to_clip = itertools.chain(
-                        param_group["params"]
-                        for param_group in param_groups_to_optimize
-                    )
-                    accelerator.clip_grad_norm_(params_to_clip, args.max_grad_norm)
+                # if accelerator.sync_gradients:
+                #     params_to_clip = itertools.chain(
+                #         param_group["params"]
+                #         for param_group in param_groups_to_optimize
+                #     )
+                #     accelerator.clip_grad_norm_(params_to_clip, args.max_grad_norm)
                 optimizer.step()
                 lr_scheduler.step()
                 optimizer.zero_grad()
