@@ -80,7 +80,7 @@ UNET_TARGET_REPLACE_MODULE = ["Transformer2DModel", "Attention"]
 UNET_TARGET_REPLACE_MODULE_CONV2D_3X3 = ["ResnetBlock2D", "Downsample2D", "Upsample2D"]
 TEXT_ENCODER_TARGET_REPLACE_MODULE = ["CLIPAttention", "CLIPMLP"]
 TEXT_ENCODER_EMBEDDING_LAYER = ["token_embedding"]
-PEFT_COMBINED_CKPT = "adapter_model.safetensors"
+PEFT_COMBINED_CKPT = "model.safetensors"
 MODEL_NAMES = ["unet", "text_encoder", "text_encoder_2"]
 
 
@@ -905,7 +905,7 @@ def parse_args(input_args=None):
     return args
 
 
-def initialize_new_tokens(self, inserting_toks, text_encoders, tokenizers):
+def initialize_new_tokens(inserting_toks, text_encoders, tokenizers):
     for tokenizer, text_encoder in zip(tokenizers, text_encoders):
         assert isinstance(
             inserting_toks, list
@@ -914,8 +914,7 @@ def initialize_new_tokens(self, inserting_toks, text_encoders, tokenizers):
             isinstance(tok, str) for tok in inserting_toks
         ), "All elements in inserting_toks should be strings."
 
-        self.inserting_toks = inserting_toks
-        special_tokens_dict = {"additional_special_tokens": self.inserting_toks}
+        special_tokens_dict = {"additional_special_tokens": inserting_toks}
         tokenizer.add_special_tokens(special_tokens_dict)
         text_encoder.resize_token_embeddings(len(tokenizer))
 
