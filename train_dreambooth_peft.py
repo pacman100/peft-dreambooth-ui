@@ -1339,7 +1339,7 @@ def main(args):
         inserting_toks = []
         for new_tok in token_abstraction_dict.values():
             inserting_toks.extend(new_tok)
-        initialize_new_tokens(inserting_toks, text_encoders, inserting_toks)
+        initialize_new_tokens(inserting_toks, text_encoders, tokenizers)
 
     # We only train the additional adapter LoRA layers
     vae.requires_grad_(False)
