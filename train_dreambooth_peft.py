@@ -2018,6 +2018,7 @@ def main(args):
                     if args.seed
                     else None
                 )
+                validation_prompt = args.validation_prompt
                 if args.add_new_tokens:
                     # replace instances of --token_abstraction in caption with the new tokens: "<si><si+1>" etc.
                     for token_abs, token_replacement in token_abstraction_dict.items():
