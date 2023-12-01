@@ -74,7 +74,8 @@ from peft import (
 )
 from peft.mapping import PEFT_TYPE_TO_CONFIG_MAPPING
 
-UNET_TARGET_REPLACE_MODULE = ["Transformer2DModel", "Attention"]  # ["Attention"]
+UNET_TARGET_REPLACE_MODULE_RESNET = ["Transformer2DModel"]
+UNET_TARGET_REPLACE_MODULE = ["Attention"]
 UNET_TARGET_REPLACE_MODULE_CONV2D_3X3 = ["ResnetBlock2D", "Downsample2D", "Upsample2D"]
 TEXT_ENCODER_TARGET_REPLACE_MODULE = ["CLIPAttention", "CLIPMLP"]
 TEXT_ENCODER_EMBEDDING_LAYER = ["token_embedding"]
@@ -99,6 +100,11 @@ def add_peft_adapters_to_unet(args, unet):
         UNET_TARGET_REPLACE_MODULE + UNET_TARGET_REPLACE_MODULE_CONV2D_3X3
         if args.target_unet_convd_modules
         else UNET_TARGET_REPLACE_MODULE
+    )
+    unet_target_sub_modules = (
+        unet_target_sub_modules + UNET_TARGET_REPLACE_MODULE_RESNET
+        if args.target_unet_all_linear_modules
+        else unet_target_sub_modules
     )
     unet_target_modules = get_target_modules_list(unet, unet_target_sub_modules)
     config = LoraConfig(
@@ -848,6 +854,11 @@ def parse_args(input_args=None):
         "--target_unet_convd_modules",
         action="store_true",
         help="Whether or not to add PEFT adapters to the Convolutional layers",
+    )
+    parser.add_argument(
+        "--target_unet_all_linear_modules",
+        action="store_true",
+        help="Whether or not to add PEFT adapters to all linear layers instead of just attention layers.",
     )
 
     if input_args is not None:
