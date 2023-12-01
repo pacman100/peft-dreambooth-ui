@@ -1727,14 +1727,14 @@ def main(args):
                 print("PIVOT HALFWAY", epoch)
                 unet.train()
                 # stopping optimization of text_encoder params
-                optimizer.param_groups[0]["lr"] = args.learning_rate
+                # optimizer.param_groups[0]["lr"] = args.learning_rate
                 for param_group in optimizer.param_groups[1:]:
                     param_group["lr"] = 0.0  # stop learning
             else:
                 # optimizng the text encoder
                 text_encoder_one.train()
                 text_encoder_two.train()
-                optimizer.param_groups[0]["lr"] = 0.0
+                # optimizer.param_groups[0]["lr"] = 0.0
 
         # unet.train()
         for step, batch in enumerate(train_dataloader):
