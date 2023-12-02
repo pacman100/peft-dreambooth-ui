@@ -199,7 +199,8 @@ def load_combine_checkpoint(input_dir, pipe, adapter_name="default"):
         if isinstance(model, PeftModel) and adapter_name in model.peft_config:
             raise ValueError(f"{adapter_name} already in the model")
         if model_name not in metadata:
-            raise ValueError(f"{model_name} is not in {metadata}")
+            warnings.warn(f"{model_name} is not in {metadata}")
+            continue
         config_params = json.loads(metadata[model_name])
         config_cls = PEFT_TYPE_TO_CONFIG_MAPPING[config_params["peft_type"]]
         peft_config = config_cls(**config_params)
