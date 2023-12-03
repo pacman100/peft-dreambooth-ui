@@ -1544,7 +1544,7 @@ def main(args):
         add_time_ids = add_time_ids.to(accelerator.device, dtype=weight_dtype)
         return add_time_ids
 
-    if not args.train_text_encoder:
+    if freeze_text_encoder:
         tokenizers = [tokenizer_one, tokenizer_two]
         text_encoders = [text_encoder_one, text_encoder_two]
 
@@ -1964,16 +1964,15 @@ def main(args):
                 break
 
         if accelerator.is_main_process:
-            if (
-                args.validation_prompt is not None
-                and (epoch + 1) % args.validation_epochs == 0
+            if args.validation_prompt is not None and (
+                (epoch + 1) % args.validation_epochs == 0 or epoch == 0
             ):
                 logger.info(
                     f"Running validation... \n Generating {args.num_validation_images} images with prompt:"
                     f" {args.validation_prompt}."
                 )
                 # create pipeline
-                if not (args.train_text_encoder or args.add_new_tokens):
+                if freeze_text_encoder:
                     text_encoder_one = text_encoder_cls_one.from_pretrained(
                         args.pretrained_model_name_or_path,
                         subfolder="text_encoder",
@@ -1983,6 +1982,18 @@ def main(args):
                         args.pretrained_model_name_or_path,
                         subfolder="text_encoder_2",
                         revision=args.revision,
+                    )
+                    tokenizer_one = AutoTokenizer.from_pretrained(
+                        args.pretrained_model_name_or_path,
+                        subfolder="tokenizer",
+                        revision=args.revision,
+                        use_fast=False,
+                    )
+                    tokenizer_two = AutoTokenizer.from_pretrained(
+                        args.pretrained_model_name_or_path,
+                        subfolder="tokenizer_2",
+                        revision=args.revision,
+                        use_fast=False,
                     )
                 pipeline = StableDiffusionXLPipeline.from_pretrained(
                     args.pretrained_model_name_or_path,
@@ -2054,6 +2065,9 @@ def main(args):
                         )
 
                 del pipeline
+                if freeze_text_encoder:
+                    del text_encoder_one, text_encoder_two, tokenizer_one, tokenizer_two
+                gc.collect()
                 torch.cuda.empty_cache()
 
     # Save the PEFT adapter weights
