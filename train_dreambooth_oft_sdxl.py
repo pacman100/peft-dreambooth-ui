@@ -1571,12 +1571,12 @@ def main(args):
                 if accelerator.sync_gradients:
                     params_to_clip = (
                         itertools.chain(
-                            unet_parameters_with_lr,
-                            text_parameters_one_with_lr,
-                            text_parameters_two_with_lr,
+                            unet.parameters(),
+                            text_encoder_one.parameters(),
+                            text_encoder_two.parameters(),
                         )
                         if args.train_text_encoder
-                        else unet_parameters_with_lr
+                        else unet.parameters()
                     )
                     accelerator.clip_grad_norm_(params_to_clip, args.max_grad_norm)
                 optimizer.step()
