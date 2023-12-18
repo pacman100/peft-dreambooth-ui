@@ -1634,7 +1634,6 @@ def main(args):
                     unet=accelerator.unwrap_model(unet, keep_fp32_wrapper=True),
                     revision=args.revision,
                     variant=args.variant,
-                    torch_dtype=weight_dtype,
                 )
 
                 pipeline = pipeline.to(accelerator.device)
