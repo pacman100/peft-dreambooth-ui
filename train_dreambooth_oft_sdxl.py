@@ -1651,11 +1651,10 @@ def main(args):
                 )
                 pipeline_args = {"prompt": args.validation_prompt}
 
-                with torch.cuda.amp.autocast():
-                    images = [
-                        pipeline(**pipeline_args, generator=generator).images[0]
-                        for _ in range(args.num_validation_images)
-                    ]
+                images = [
+                    pipeline(**pipeline_args, generator=generator).images[0]
+                    for _ in range(args.num_validation_images)
+                ]
 
                 for tracker in accelerator.trackers:
                     if tracker.name == "tensorboard":
