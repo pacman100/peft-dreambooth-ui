@@ -1088,7 +1088,7 @@ def main(args):
 
     # now we will add new LoRA weights to the attention layers
     unet_oft_config = OFTConfig(
-        r=args.rank, alpha=32, init_weights=True, target_modules=UNET_TARGET_MODULES
+        r=args.rank, init_weights=True, target_modules=UNET_TARGET_MODULES
     )
     unet = get_peft_model(unet, unet_oft_config)
 
@@ -1096,10 +1096,7 @@ def main(args):
     # So, instead, we monkey-patch the forward calls of its attention-blocks.
     if args.train_text_encoder:
         text_oft_config = OFTConfig(
-            r=args.rank,
-            alpha=32,
-            init_weights=True,
-            target_modules=TEXT_ENCODER_TARGET_MODULES,
+            r=args.rank, init_weights=True, target_modules=TEXT_ENCODER_TARGET_MODULES
         )
         text_encoder_one = get_peft_model(text_encoder_one, text_oft_config)
         text_encoder_two = get_peft_model(text_encoder_two, text_oft_config)
