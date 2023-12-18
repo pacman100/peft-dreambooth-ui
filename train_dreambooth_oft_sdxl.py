@@ -1416,7 +1416,7 @@ def main(args):
 
         for step, batch in enumerate(train_dataloader):
             with accelerator.accumulate(unet):
-                pixel_values = batch["pixel_values"]
+                pixel_values = batch["pixel_values"].to(dtype=weight_dtype)
                 prompts = batch["prompts"]
 
                 # encode batch prompts when custom prompts are provided for each image -
