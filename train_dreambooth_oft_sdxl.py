@@ -1634,6 +1634,7 @@ def main(args):
                     unet=accelerator.unwrap_model(unet, keep_fp32_wrapper=True),
                     revision=args.revision,
                     variant=args.variant,
+                    torch_dtype=weight_dtype,
                 )
 
                 pipeline = pipeline.to(accelerator.device)
@@ -1646,11 +1647,12 @@ def main(args):
                     else None
                 )
                 pipeline_args = {"prompt": args.validation_prompt}
-
-                images = [
-                    pipeline(**pipeline_args, generator=generator).images[0]
-                    for _ in range(args.num_validation_images)
-                ]
+                
+                with torch.cuda.amp.autocast():
+                    images = [
+                        pipeline(**pipeline_args, generator=generator).images[0]
+                        for _ in range(args.num_validation_images)
+                    ]
 
                 for tracker in accelerator.trackers:
                     if tracker.name == "tensorboard":
