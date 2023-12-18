@@ -1353,7 +1353,7 @@ def main(args):
     # We need to initialize the trackers we use, and also store our configuration.
     # The trackers initializes automatically on the main process.
     if accelerator.is_main_process:
-        accelerator.init_trackers("dreambooth-lora-sd-xl", config=vars(args))
+        accelerator.init_trackers("dreambooth-oft-sdxl", config=vars(args))
 
     # Train!
     total_batch_size = (
