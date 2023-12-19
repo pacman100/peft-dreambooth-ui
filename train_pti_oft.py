@@ -136,6 +136,50 @@ def add_peft_adapters_to_text_encoder(args, text_encoder):
     return text_encoder
 
 
+def save_combined_ckeckpoint(
+    output_dir,
+    model_name_to_model,
+    model_name_to_model_state_dict=None,
+    adapter_name="default",
+    add_new_tokens=False,
+):
+    # the models in the `model_name_to_model` should be unwrapped
+    metadata = {"library": "peft", "has_config": "true"}
+    state_dict = {}
+
+    for model_name, model in model_name_to_model.items():
+        if not isinstance(model, PeftModel):
+            raise ValueError(
+                "`model_name_to_model` should be a dictionary with `PeftModel` instances"
+            )
+        model_state_dict = (
+            model_name_to_model_state_dict[model]
+            if model_name_to_model_state_dict
+            else None
+        )
+        model_state_dict = get_peft_model_state_dict(
+            model,
+            state_dict=model_state_dict,
+            adapter_name=adapter_name,
+            save_embedding_layers=add_new_tokens,
+        )
+        model_state_dict = {f"{model_name}.{k}": v for k, v in model_state_dict.items()}
+        state_dict.update(model_state_dict)
+        config = model.peft_config[adapter_name].to_dict()
+        for key, value in config.items():
+            if isinstance(value, set):
+                config[key] = list(value)
+        config_as_string = json.dumps(config, indent=2, sort_keys=True)
+        metadata[model_name] = config_as_string
+
+    print(f"{metadata=}")
+    output_filepath = os.path.join(output_dir, PEFT_COMBINED_CKPT)
+    print(f"saving the checkpoint to {output_filepath=}")
+    # Save state dict
+    save_file(state_dict, output_filepath, metadata=metadata)
+    print(f"Saved the checkpoint to {output_filepath=}! 🤗🚀✨")
+
+
 def get_param_groups(
     args, unet, text_encoder_one, text_encoder_two, freeze_text_encoder
 ):
@@ -790,13 +834,6 @@ def parse_args(input_args=None):
         raise ValueError(
             "Specify only one of `--dataset_name` or `--instance_data_dir`"
         )
-
-    # if args.train_text_encoder and args.add_new_tokens:
-    #     raise ValueError(
-    #         "Specify only one of `--train_text_encoder` or `--add_new_tokens. "
-    #         "For full LoRA text encoder training check --train_text_encoder, for textual "
-    #         "inversion training check `--add_new_tokens`"
-    #     )
 
     if args.add_new_tokens:
         if isinstance(args.token_abstraction, str):
@@ -1991,13 +2028,21 @@ def main(args):
     accelerator.wait_for_everyone()
     if accelerator.is_main_process:
         if args.output_dir is not None:
-            unet = accelerator.unwrap_model(unet)
-            unet.save_pretrained(os.path.join(args.output_dir, "unet"))
-            if freeze_text_encoder:
-                text_encoder_one = accelerator.unwrap_model(text_encoder_one)
-                text_encoder_one.save_pretrained(os.path.join(args.output_dir, "text_encoder"))
-                text_encoder_two = accelerator.unwrap_model(text_encoder_two)
-                text_encoder_two.save_pretrained(os.path.join(args.output_dir, "text_encoder_two"))
+            model_name_to_model = {"unet": accelerator.unwrap_model(unet)}
+            if args.train_text_encoder or args.add_new_tokens:
+                model_name_to_model.update(
+                    {
+                        "text_encoder": accelerator.unwrap_model(text_encoder_one),
+                        "text_encoder_2": accelerator.unwrap_model(text_encoder_two),
+                    }
+                )
+            if not all(k in MODEL_NAMES for k in model_name_to_model.keys()):
+                raise ValueError(
+                    "Some model names were not as per the list of allowed model names `{MODEL_NAMES}`"
+                )
+            save_combined_ckeckpoint(
+                args.output_dir, model_name_to_model, add_new_tokens=args.add_new_tokens
+            )
 
         if args.push_to_hub:
             save_model_card(
